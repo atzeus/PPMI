@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
     cout << cds << "CDS\n";
     ifstream ifile(argv[CORPUS_INPUT]);
     if(ifile.fail()){
-        cerr << "Could not open file." << endl;
+        cerr << "Could not input open file." << endl;
         return 1;
     }
     // produce counts per word
@@ -296,7 +296,7 @@ int main(int argc, char *argv[])
   printf ("SDV totals took (%f seconds).\n",((float)t)/CLOCKS_PER_SEC);
   t = clock();
     std::string base(argv[SVD_INPUT]);
-    ofstream uout(base + "ut.txt");
+    ofstream uout(base + ".ut.txt");
  
     for(int i = 0 ; i < svd.matrixU().rows() ; i++){
         for(int j = 0 ; j < svd.matrixU().cols() ; j++){
@@ -305,7 +305,7 @@ int main(int argc, char *argv[])
         uout << endl;
     }
 
- ofstream vout(base + "vt.txt");
+ ofstream vout(base + ".vt.txt");
  
     for(int i = 0 ; i < svd.matrixV().rows() ; i++){
         for(int j = 0 ; j < svd.matrixV().cols() ; j++){
@@ -315,7 +315,7 @@ int main(int argc, char *argv[])
     }
     t = clock() - t;
 
-   ofstream sout(base + "s.txt");
+   ofstream sout(base + ".s.txt");
     for(int i = 0 ; i < rank ; i++){
         sout << svd.singularValues()(i) << endl;
     }
