@@ -1,28 +1,4 @@
-# redsvd
+This is code for efficiently computing a the Positive Pairwise Mutual Information (PPMI) matrix and its Singular Value Decomposition (SVD)
 
-A fork of the original repo from google code (find it [here](https://code.google.com/archive/p/redsvd/)).
+It includes a the code for redsvd (https://github.com/mooreryan/redsvd.git) which is used as an efficient SVD algorithm. 
 
-## Building
-
-*Note*: If you want to build the tests and samples, just uncomment out the commented lines in `wscript` and remove the very last line.
-
-To install
-
-```
-$ git clone https://github.com/mooreryan/redsvd.git
-$ cd redsvd
-$ make
-```
-
-You'll need a C++ compiler as well as Python to run the `waf` build script.
-
-## Changes to the original
-
-When using sparse matrices and the SVD option, the program spits out some additional files:
-
-- the `US` matrix
-- the `VS` matrix
-- the all vs. all cosine dissimilarity matrix of either `US` or `VS`, whichever has fewer rows
-- the `US` vs `VS` cosine dissimilarity matrix if `US` has fewer rows than `VS`, or `VS` vs `US` otherwise.
-
-Also, it builds against the Eigen library that is included in this repository to make it an all in one package.

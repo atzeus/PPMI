@@ -77,8 +77,17 @@ void runSparseSVD(int row, int col, float ratio){
 
   double start = getSec();
   for (int r = 10; r <= 80; r *= 2){
-    REDSVD::RedSVD redSVD(A, r);
-    cout << getSec() - start << "\t";  
+    REDSVD::RedSVD svd(A, r);
+    cout << "dezeU " << svd.matrixU().rows() << " " << svd.matrixU().cols() << endl;
+    for(int i = 0 ; i < svd.matrixU().rows() ; i++){
+        for(int j = 0 ; j < svd.matrixU().cols() ; j++){
+            cout << svd.matrixU()(i,j);
+        }
+        cout << endl;
+    }
+    cout << "dezeS " << svd.singularValues().rows() << " " << svd.singularValues().cols() << endl;
+    cout << "dezeV " << svd.matrixV().rows() << " " << svd.matrixV().cols() << endl;
+//    cout << getSec() - start << "\t" << endl;  
   }
   cout << endl;
 
@@ -141,7 +150,7 @@ void sparseMatrixTest(){
 
 int main(int argc, char* argv[]){
   sparseMatrixTest();
-  denseMatrixTest();
+  //denseMatrixTest();
   return 0;
 }
 

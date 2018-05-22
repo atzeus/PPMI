@@ -6,11 +6,11 @@ blddir = 'build'
 
 def set_options(ctx):
   ctx.tool_options('compiler_cxx')
-  ctx.tool_options('unittestt')
+  ctx.tool_options('unittest')
 
 def configure(ctx):
   ctx.check_tool('compiler_cxx')
-  # ctx.check_tool('unittestt')
+  # ctx.check_tool('unittest')
   # ctx.check_cfg(package = 'eigen3')
   ctx.env.CXXFLAGS += ['-O2', '-Wall', '-g']
 
@@ -22,5 +22,5 @@ def dist_hook():
     os.remove('googlecode_upload.py')
 
 def build(bld):
-  # bld.recurse('src test sample')
-  bld.recurse('src')
+  bld.recurse('src test')
+  # bld.recurse('src')

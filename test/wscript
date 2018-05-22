@@ -11,8 +11,10 @@ def build(bld):
       install_path  = None,
       includes     = '.',
       uselib_local = 'redsvd')
-
-  bld(features     = 'cxx cprogram gtest',
-      source       = 'redsvdTest.cpp ../src/redsvdFile.cpp',
-      target       = 'redsvd_test',
+  bld(features     ='cxx cprogram',
+      source       = 'mmio.cpp countc.cpp',
+      target       = 'count',
+      install_path  = None,
+      includes     = '.',
       uselib_local = 'redsvd')
+
