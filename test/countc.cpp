@@ -82,6 +82,18 @@ int main(int argc, char *argv[])
     bool dyn = tryGetBoolArg(argc,argv,"--dyn");
     bool del = tryGetBoolArg(argc,argv,"--del");   
 
+    if(pos){
+        cout << "Pos currently not supported (also not supported in Python)" << endl;
+        return 1;
+    }
+
+
+    if(del){
+        cout << "Del currently not supported, as effect is not measured by Levy" << endl;
+        return 1;
+    }
+
+
     cout << cds << "CDS\n";
     ifstream ifile(argv[CORPUS_INPUT]);
     if(ifile.fail()){
