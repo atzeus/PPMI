@@ -1,4 +1,12 @@
-                                 Apache License
+This repository has various licenses, since it includes:
+
+eigen3 library in vendor/eigen3: MPL2 license
+Matrix Market I/O library in test/mmio.*: copyright National Institute of Advanced Industrial Science and Technology
+new PPMI code (test/countc.cpp, convertMM.py, convertTXT.py, distributional.sh): Apache 2.0 license (below)
+redsvd (all files not listed above): BSD 3-Clause "New" or "Revised" License
+
+
+                              Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
 
