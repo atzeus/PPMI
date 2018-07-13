@@ -32,6 +32,7 @@ if [ "$#" -lt 5 ]; then
     echo "--pos (default: false)"
     echo "--dyn (default: false)"
     echo "--del (default: false)"
+    echo "--neg (default: 0)"
     exit 0
 fi
 
@@ -41,7 +42,7 @@ pairs=$3
 ppmi=$4
 svd=$5
 echo $corpus
-
+echo $@
 shift 5
 ./build/default/test/count $corpus $vocab $pairs $ppmi.mm $svd $@
 
@@ -59,7 +60,7 @@ rm $svd.vt.txt
 python convertTXT.py $svd.s.txt $svd.s.npy
 rm $svd.s.txt
 python convertMM.py $ppmi.mm $ppmi.npz
-rm $ppmi.mm
+#rm $ppmi.mm
 
 cp $vocab $svd.contexts.vocab
 cp $vocab $svd.words.vocab

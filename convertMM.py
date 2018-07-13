@@ -1,5 +1,6 @@
 import numpy as np
 import scipy.io as sio
+import scipy.sparse.csr 
 import numpy as np
 from docopt import docopt
 
@@ -13,11 +14,11 @@ def main():
     input_path = args['<name.mm>']
     output_path = args['<name.npz>']
 
-    npa = sio.mmread(input_path)
-    np.savez_compressed(output_path, npa)
+    m = sio.mmread(input_path).tocsr()
+    np.savez_compressed(output_path, data=m.data, indices=m.indices, indptr=m.indptr, shape=m.shape)
     
     
-    print npa.shape
+    print m.shape
 
 if __name__ == '__main__':
     main()

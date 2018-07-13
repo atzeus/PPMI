@@ -19,8 +19,9 @@ bool myfunction2 (pair<int,int> i,pair<int,int> j) { return (i.second > j.second
 #define NRFILE_ARGS 4
 
 bool tryGetBoolArg(int argc, char* argv[],const char* arg){
-    for(int i = 1 ; i < argc - NRFILE_ARGS; i++){
-        if(strcmp(argv[i],arg) == 0 && i + 1 < argc - NRFILE_ARGS){
+    for(int i = NRFILE_ARGS + 1 ; i < argc ; i++){
+        if(strcmp(argv[i],arg) == 0){
+                cout << arg << ":" << "true" << " \n";
            return true;
         }
     }
@@ -30,13 +31,12 @@ bool tryGetBoolArg(int argc, char* argv[],const char* arg){
 
 
 double tryGetFloatArg(int argc, char* argv[],const char* arg, double defaults){
-    for(int i = 1 ; i < argc - NRFILE_ARGS; i++){
-        printf("%s\n", argv[i]);
-        if(strcmp(argv[i],arg) == 0 && i + 1 < argc - NRFILE_ARGS){
-            printf("got %s\n", arg);
+    for(int i = NRFILE_ARGS + 1 ; i < argc ; i++){
+        //printf("%s\n", argv[i]);
+        if(strcmp(argv[i],arg) == 0 && i + 1 < argc ){
             double res;
             if(sscanf(argv[i+1], "%lf",&res) == 1){
-                cout << res << " gotten\n";
+                cout << arg << ":" << res << "\n";
                 return res;
             } else {
                 cout << "Could not parse float \n";
@@ -48,10 +48,11 @@ double tryGetFloatArg(int argc, char* argv[],const char* arg, double defaults){
 
 
 int tryGetNumArg(int argc, char* argv[],const char* arg, int defaults){
-    for(int i = 1 ; i < argc - NRFILE_ARGS; i++){
-        if(strcmp(argv[i],arg) == 0 && i + 1 < argc - NRFILE_ARGS){
+    for(int i = NRFILE_ARGS + 1 ; i < argc ; i++){
+        if(strcmp(argv[i],arg) == 0 && i + 1 < argc ){
             int res;
             if(sscanf(argv[i+1], "%d",&res) == 1){
+                cout << arg << ":" << res << "\n";
                 return res;
             } 
         }
@@ -67,6 +68,35 @@ int tryGetNumArg(int argc, char* argv[],const char* arg, int defaults){
 #define PPMI_INPUT 4
 #define SVD_INPUT 5
 
+/*
+std::unique_ptr<unordered_map<string, int>> counts_per_word(char* filename, int& num_words){
+  num_words = 0;
+  clock_t t;
+  t = clock();
+  auto m = make_unique<unordered_map<string, int>>();
+  unordered_map<string, int> m;
+    for (string line, word; getline(ifile, line); )
+    {
+        istringstream iss(line);
+
+        while (iss >> word)
+        {
+           unordered_map<string, int>::iterator i = m.find(word);
+           if(i == m.end()){
+             m[word] = 1;
+           } else {
+             i->second = i->second + 1;
+           }
+           num_words++;
+        }
+    }
+    return m;
+
+}
+    
+*/
+
+
 int main(int argc, char *argv[])
 {
     clock_t t;
@@ -80,7 +110,8 @@ int main(int argc, char *argv[])
     double cds = tryGetFloatArg(argc,argv,"--cds",0.75f);
     bool pos = tryGetBoolArg(argc,argv,"--pos");
     bool dyn = tryGetBoolArg(argc,argv,"--dyn");
-    bool del = tryGetBoolArg(argc,argv,"--del");   
+    bool del = tryGetBoolArg(argc,argv,"--del");
+    double neg = tryGetFloatArg(argc,argv,"--neg",5);   
 
     if(pos){
         cout << "Pos currently not supported (also not supported in Python)" << endl;
@@ -88,13 +119,13 @@ int main(int argc, char *argv[])
     }
 
 
-    if(del){
-        cout << "Del currently not supported, as effect is not measured by Levy" << endl;
+    if(!del){
+        cout << "Del off currently not supported, as effect is not measured by Levy" << endl;
         return 1;
     }
 
 
-    cout << cds << "CDS\n";
+    //cout << cds << "CDS\n";
     ifstream ifile(argv[CORPUS_INPUT]);
     if(ifile.fail()){
         cerr << "Could not input open file." << endl;
@@ -133,18 +164,16 @@ int main(int argc, char *argv[])
 
     // remove deleted words
     subsample*= num_words;
-   
+    unordered_map<string, double> subsampler;
+
+
         
     for (unordered_map<string, int>::iterator it=m.begin(); it!=m.end(); ++it){
         int count = it->second;
         if(count < thr){
             it->second = -1;
         } else if ( count > subsample) {
-            float p = 1 - sqrt( subsample / count);
-            double r = distribution(generator);
-            if(r > p) {
-                it->second = -1;
-            }
+            subsampler[it->first] = 1 - sqrt( subsample / count);
         }   
         if(it->second >= 1){
             vocab.push_back(it->first);
@@ -195,8 +224,19 @@ int main(int argc, char *argv[])
 
 
         while (iss >> word) {
+            
             if(m[word] >= 1) {
-                words.push_back(word);
+                unordered_map<string,double>::iterator it = subsampler.find(word);
+                bool add = true;
+                if(it != subsampler.end()){
+                  double rnd = distribution(generator);
+                  if(rnd <= it->second) {
+                     add = false;
+                  }
+                }
+                if(add){
+                  words.push_back(word);
+                }
             }
         }
         
@@ -281,7 +321,7 @@ int main(int argc, char *argv[])
     mm_write_banner(fp,matcode);
     mm_write_mtx_crd_size(fp, vocab.size(), vocab.size(), nonZero);
 
-
+    double shift = 0;
     typedef Eigen::Triplet<double> T;
     std::vector<T> tripletList;
     for(auto itp = pairs.begin(); itp != pairs.end(); itp++){
@@ -292,7 +332,7 @@ int main(int argc, char *argv[])
             double res = (count / (totSelf[word] * totContext[context])) * totalC ;
             fprintf(fp, "%d %d %lf\n" , itp->first + 1, itw->first + 1, res);
           // fprintf(fp, "%d %d %10.3g\n", itp->first+1, itw->first+1, res);
-            tripletList.push_back(T(itp->first,itw->first, res ));
+            tripletList.push_back(T(itp->first,itw->first, res - shift ));
              //cout << "\t" << word << " " << context << " " <<  res << "\n";
         }
     }
@@ -309,9 +349,9 @@ int main(int argc, char *argv[])
   t = clock();
     std::string base(argv[SVD_INPUT]);
     ofstream uout(base + ".ut.txt");
- 
+         for(int j = 0 ; j < svd.matrixU().cols() ; j++){
     for(int i = 0 ; i < svd.matrixU().rows() ; i++){
-        for(int j = 0 ; j < svd.matrixU().cols() ; j++){
+
             uout << svd.matrixU()(i,j) << ' ';
         }
         uout << endl;
